@@ -2,4 +2,5 @@
     <string name="app_name">DiceGame</string>
     <string name="title_activity_game_screen">GameScreen</string>
     <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_about_screem">AboutScreem</string>
 </resources>
