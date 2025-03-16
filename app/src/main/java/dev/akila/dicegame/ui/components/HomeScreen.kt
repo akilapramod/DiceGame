@@ -85,58 +85,33 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             contentScale = ContentScale.Crop
         )
 
-
         Column(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            GameTitile(
+            PrimaryTitleBox(
                 modifier = Modifier
                     .padding(bottom = 300.dp)
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(10.dp)),
+                    .height(50.dp),
+                text = " Dice Game "
             )
 
             PrimaryButton(modifier = Modifier
-            .padding(bottom = 16.dp
-            ), 
-            text = "New Game", 
-            onClick = {
-                Log.d("Main Activity", "New Game started.")
-            })
+                .padding(bottom = 16.dp),
+                text = "New Game",
+                onClick = {
+                    Log.d("Main Activity", "New Game started.")
+                })
             PrimaryButton(modifier = Modifier
-            .padding(bottom = 16.dp), 
-            text = "About", 
-            onClick = {
-                Log.d("Main Activity", "About button pressed.")
-            })
+                .padding(bottom = 16.dp),
+                text = "About",
+                onClick = {
+                    Log.d("Main Activity", "About button pressed.")
+                })
         }
     }}
 
-}
-
-@Composable
-fun GameTitile(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .size(250.dp)
-            .border(border = BorderStroke(2.dp, Color.Black))
-            .background(Color(0xFF3674B5))
-            .clip(RoundedCornerShape(8.dp)),
-        contentAlignment = Alignment.Center
-    )
-    {
-        Text(
-            text = "Dice Game",
-            style = TextStyle(
-                fontFamily = happyMonkeyFont,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-            )
-        )
-    }
 }
 
 @Composable
@@ -163,5 +138,49 @@ fun PrimaryButton(modifier: Modifier = Modifier, text: String, onClick: () -> Un
                 color = Color.Black,
             )
         )
+    }
+}
+
+@Composable
+fun PrimaryTitleBox(modifier: Modifier = Modifier, text: String) {
+    Box(
+        modifier = modifier
+            .border(border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp))
+            .background(buttonColor)
+            .clip(RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = text,
+            style = TextStyle(
+                fontFamily = happyMonkeyFont,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+        )
+    }
+}
+
+//this same
+@Composable
+fun ContentBox(modifier: Modifier = Modifier, text: String){
+    Box(
+        modifier = modifier
+            .border(border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp))
+            .background(buttonColor)
+            .clip(RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = text,
+            style = TextStyle(
+                fontFamily = happyMonkeyFont,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+        )
+
     }
 }
