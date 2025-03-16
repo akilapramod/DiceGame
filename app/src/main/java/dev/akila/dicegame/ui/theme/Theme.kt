@@ -13,17 +13,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import dev.akila.dicegame.R
+import dev.akila.dicegame.ui.theme.AppColors
+import dev.akila.dicegame.ui.theme.AppColors.buttonColor
+import dev.akila.dicegame.ui.theme.AppColors.primaryColor
+import dev.akila.dicegame.ui.theme.AppColors.secondaryColor
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = primaryColor,
+    secondary = secondaryColor,
+    tertiary = buttonColor
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = primaryColor,
+    secondary = secondaryColor,
+    tertiary = buttonColor
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

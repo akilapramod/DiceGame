@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,7 +38,11 @@ import androidx.compose.ui.unit.dp
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import dev.akila.dicegame.R
+import dev.akila.dicegame.ui.theme.AppColors.buttonColor
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +65,7 @@ class HomeActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
+    DiceGameTheme {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -71,6 +78,12 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 )
             )
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper), // Replace with your image resource
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
 
 
         Column(
@@ -85,14 +98,21 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .clip(RoundedCornerShape(10.dp)),
             )
 
-            NewGameButton(
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            AboutButton(
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            PrimaryButton(modifier = Modifier
+            .padding(bottom = 16.dp
+            ), 
+            text = "New Game", 
+            onClick = {
+                Log.d("Main Activity", "New Game started.")
+            })
+            PrimaryButton(modifier = Modifier
+            .padding(bottom = 16.dp), 
+            text = "About", 
+            onClick = {
+                Log.d("Main Activity", "About button pressed.")
+            })
         }
-    }
+    }}
 
 }
 
@@ -102,7 +122,7 @@ fun GameTitile(modifier: Modifier = Modifier) {
         modifier = modifier
             .size(250.dp)
             .border(border = BorderStroke(2.dp, Color.Black))
-            .background(Color(0xFF81AFD4))
+            .background(Color(0xFF3674B5))
             .clip(RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
     )
@@ -119,20 +139,23 @@ fun GameTitile(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
-fun NewGameButton(modifier: Modifier = Modifier) {
+fun PrimaryButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
     Button(
         modifier = modifier
-            .width(250.dp),
-
-        onClick = {
-            Log.d("Main Activity", "New Game started.")
-
-        }
+            .border(
+                border = BorderStroke(6.dp, Color.Black),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clip(RoundedCornerShape(8.dp)),
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = buttonColor,
+            contentColor = Color.Black,
+        )
     ) {
         Text(
-            text = "New Game",
+            text = text,
             style = TextStyle(
                 fontFamily = happyMonkeyFont,
                 fontSize = 24.sp,
@@ -142,23 +165,3 @@ fun NewGameButton(modifier: Modifier = Modifier) {
         )
     }
 }
-
-@Composable
-fun AboutButton(modifier: Modifier = Modifier) {
-    Button(
-        modifier = modifier.width(250.dp),
-        onClick = {
-            Log.d("Main Activity", "About button pressed.")
-        }
-    ) {
-        Text(
-            text = "About",
-            style = TextStyle(
-                fontFamily = happyMonkeyFont,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-        ))
-    }
-}
-
