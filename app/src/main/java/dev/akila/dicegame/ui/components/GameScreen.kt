@@ -1,11 +1,14 @@
 package dev.akila.dicegame.ui.components
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,8 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 class GameScreen : ComponentActivity() {
@@ -45,9 +51,18 @@ class GameScreen : ComponentActivity() {
         setContent {
             DiceGameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+
                     GameScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
+                    Image(
+                        painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper), // Replace with your image resource
+                        contentDescription = "Background Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+
                 }
             }
         }
@@ -57,6 +72,7 @@ class GameScreen : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun GameScreen(modifier: Modifier = Modifier) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,7 +85,9 @@ fun GameScreen(modifier: Modifier = Modifier) {
                     )
                 )
             )
-    ) { //this row is responsible for the score display
+    ) {
+        //this row is responsible for the score display
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -258,33 +276,25 @@ fun GameScreen(modifier: Modifier = Modifier) {
             }
         }
 
+
+        // this row is to display the score botton and the throw botton.
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    text = "Throw",
-                    style = TextStyle(
-                        fontFamily = happyMonkeyFont,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
 
-                )
+            PrimaryButton(modifier = Modifier
+                .padding(bottom = 16.dp),
+                text = "Score",
+                onClick = {
+                    Log.d("Game Activity", "Score button pressed.")
+                })
 
-                Text(
-                    text = "Score: 12 ",
-                    style = TextStyle(
-                        fontFamily = happyMonkeyFont,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
 
-                )
-            }
+            PrimaryButton(modifier = Modifier
+                .padding(bottom = 16.dp),
+                text = "Throw",
+                onClick = {
+                    Log.d("Game Activity", "Throw button pressed.")
+                })
+        }
     }
 }
-
-
-
-
