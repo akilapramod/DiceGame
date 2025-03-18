@@ -4,14 +4,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.tooling.preview.Preview
-import dev.akila.dicegame.ui.components.ui.theme.DiceGameTheme
+import androidx.compose.ui.unit.dp
+import dev.akila.dicegame.ui.theme.DiceGameTheme
 
 class AboutScreem : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,8 +26,7 @@ class AboutScreem : ComponentActivity() {
         setContent {
             DiceGameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting2(
-                        name = "Android",
+                    AboutScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -30,18 +35,24 @@ class AboutScreem : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting2(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview2() {
+fun AboutScreen(modifier: Modifier = Modifier) {
     DiceGameTheme {
-        Greeting2("Android")
+        BaseScreenLayout {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+
+
+            ) {
+                Text(
+                    text = "I confirm that I understand what plagiarism is and have read and understood " +
+                            "the section on Assessment Offences in the Essential Information for Students. " +
+                            "The work that I have submitted is entirely my own. Any work from other authors " +
+                            "is duly referenced and acknowledged."
+                )
+            }
+        }
     }
 }

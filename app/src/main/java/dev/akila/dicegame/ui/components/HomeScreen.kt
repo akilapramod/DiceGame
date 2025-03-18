@@ -43,6 +43,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.AppColors.buttonColor
+import androidx.compose.ui.unit.Dp
+import dev.akila.dicegame.ui.theme.AppColors.primaryColor
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,76 +68,33 @@ class HomeActivity : ComponentActivity() {
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     DiceGameTheme {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF81AFD4),
-                        Color(0xFF34769F)
-                    )
+        BaseScreenLayout {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                PrimaryTitleBox(
+                    modifier = Modifier
+                        .padding(bottom = 300.dp)
+                        .height(50.dp),
+                    text = " Dice Game "
                 )
-            )
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper), // Replace with your image resource
-            contentDescription = "Background Image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
 
-
-        Column(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            GameTitile(
-                modifier = Modifier
-                    .padding(bottom = 300.dp)
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(10.dp)),
-            )
-
-            PrimaryButton(modifier = Modifier
-            .padding(bottom = 16.dp
-            ), 
-            text = "New Game", 
-            onClick = {
-                Log.d("Main Activity", "New Game started.")
-            })
-            PrimaryButton(modifier = Modifier
-            .padding(bottom = 16.dp), 
-            text = "About", 
-            onClick = {
-                Log.d("Main Activity", "About button pressed.")
-            })
+                PrimaryButton(modifier = Modifier
+                    .padding(bottom = 16.dp),
+                    text = "New Game",
+                    onClick = {
+                        Log.d("Main Activity", "New Game started.")
+                    })
+                PrimaryButton(modifier = Modifier
+                    .padding(bottom = 16.dp),
+                    text = "About",
+                    onClick = {
+                        Log.d("Main Activity", "About button pressed.")
+                    })
+            }
         }
-    }}
-
-}
-
-@Composable
-fun GameTitile(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .size(250.dp)
-            .border(border = BorderStroke(2.dp, Color.Black))
-            .background(Color(0xFF3674B5))
-            .clip(RoundedCornerShape(8.dp)),
-        contentAlignment = Alignment.Center
-    )
-    {
-        Text(
-            text = "Dice Game",
-            style = TextStyle(
-                fontFamily = happyMonkeyFont,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-            )
-        )
     }
 }
 
@@ -163,5 +122,75 @@ fun PrimaryButton(modifier: Modifier = Modifier, text: String, onClick: () -> Un
                 color = Color.Black,
             )
         )
+    }
+}
+
+@Composable
+fun PrimaryTitleBox(modifier: Modifier = Modifier, text: String) {
+    Box(
+        modifier = modifier
+            .border(border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp))
+            .background(buttonColor)
+            .clip(RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = text,
+            style = TextStyle(
+                fontFamily = happyMonkeyFont,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+        )
+    }
+}
+
+//this is the primary content box
+@Composable
+fun ContentBox(modifier: Modifier = Modifier,text: String ){
+    Box(
+        modifier = modifier
+            .border(border = BorderStroke(4.dp, Color.Black),
+                shape = RoundedCornerShape(8.dp))
+            .background(primaryColor)
+            .clip(RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center
+    ){
+        Text(modifier = Modifier.padding(15.dp),
+            text = text,
+            style = TextStyle(
+                fontFamily = happyMonkeyFont,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+            )
+        )
+    }
+}
+
+//This is the base screen layout
+@Composable
+fun BaseScreenLayout(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier.fillMaxSize().background(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFF81AFD4),
+                    Color(0xFF34769F)
+                )
+            )
+        )
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        content()
     }
 }
