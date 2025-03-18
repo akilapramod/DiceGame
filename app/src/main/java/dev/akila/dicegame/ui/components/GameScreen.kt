@@ -42,19 +42,21 @@ import androidx.compose.ui.unit.sp
 import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
+import dev.akila.dicegame.ui.theme.AppColors.primaryColor
 
 
 class GameScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             DiceGameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
 
                     GameScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     )
                     Image(
                         painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper), // Replace with your image resource
@@ -72,19 +74,13 @@ class GameScreen : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun GameScreen(modifier: Modifier = Modifier) {
-
+    BaseScreenLayout {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(4.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF81AFD4),
-                        Color(0xFF34769F)
-                    )
-                )
-            )
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
+
     ) {
         //this row is responsible for the score display
 
@@ -96,7 +92,7 @@ fun GameScreen(modifier: Modifier = Modifier) {
         ) {
             Box(
                 modifier = Modifier
-                    .background(Color.Blue)
+                    .background(primaryColor)
                     .padding(8.dp)
 
             )
@@ -122,7 +118,7 @@ fun GameScreen(modifier: Modifier = Modifier) {
 
             Box(
                 modifier = Modifier
-                    .background(Color.Blue)
+                    .background(primaryColor)
                     .padding(8.dp)
             )
 
@@ -153,35 +149,21 @@ fun GameScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "H:10/C:5",
-                style = TextStyle(
-                    fontFamily = happyMonkeyFont,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                )
-            )
-            Text(
-                text = "Total Score : ",
-                style = TextStyle(
-                    fontFamily = happyMonkeyFont,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-            )
+            ContentBox(modifier,"H:10/C:5")
+            ContentBox(modifier,"Total Score : ")
+
 
         }
 
         //this box is responsible to show the dices and player name "Computer"
 
-        Box() {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Blue)
-                    .padding(6.dp), // Or other modifiers
+                    .background(primaryColor)
+                    .border(border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp))
+                , // Or other modifiers
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -198,41 +180,60 @@ fun GameScreen(modifier: Modifier = Modifier) {
                     Image(
                         painter = painterResource(id = R.drawable.dice1),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
+
+
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice2),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice3),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice4),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice5),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                 }
 
             }
-        }
+
 
         //this box is responsible to show the dices and name for human player
 
-        Box() {
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Blue)
-                    .padding(6.dp), // Or other modifiers
+                    .background(primaryColor)
+                    .border(border = BorderStroke(4.dp, Color.Black),
+                    shape = RoundedCornerShape(8.dp))
+                    , // Or other modifiers
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -240,27 +241,42 @@ fun GameScreen(modifier: Modifier = Modifier) {
                     Image(
                         painter = painterResource(id = R.drawable.dice1),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice2),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice3),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice4),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.dice5),
                         contentDescription = "Image 1",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(4.dp)
+                        ,
                     )
                 }
 
@@ -274,7 +290,7 @@ fun GameScreen(modifier: Modifier = Modifier) {
                     )
                 )
             }
-        }
+
 
 
         // this row is to display the score botton and the throw botton.
@@ -296,5 +312,5 @@ fun GameScreen(modifier: Modifier = Modifier) {
                     Log.d("Game Activity", "Throw button pressed.")
                 })
         }
-    }
+    }}
 }
