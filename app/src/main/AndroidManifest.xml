@@ -13,9 +13,9 @@
         android:theme="@style/Theme.DiceGame"
         tools:targetApi="31">
         <activity
-            android:name=".ui.components.AboutScreem"
+            android:name=".ui.components.AboutScreen"
             android:exported="false"
-            android:label="@string/title_activity_about_screem"
+            android:label="@string/title_activity_about_screen"
             android:theme="@style/Theme.DiceGame" />
         <activity
             android:name=".ui.components.HomeActivity"

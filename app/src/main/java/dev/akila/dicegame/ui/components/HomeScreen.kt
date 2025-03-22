@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.sp
 
 
 import android.os.Bundle
+import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,6 +40,7 @@ import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import dev.akila.dicegame.R
@@ -74,6 +76,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                val context = LocalContext.current
                 PrimaryTitleBox(
                     modifier = Modifier
                         .padding(bottom = 300.dp)
@@ -85,13 +88,17 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .padding(bottom = 16.dp),
                     text = "New Game",
                     onClick = {
-                        Log.d("Main Activity", "New Game started.")
+                        Log.d("Main Activity", "New game button pressed.")
+                        val i = Intent(context, GameScreen::class.java)
+                        context.startActivity(i)
                     })
                 PrimaryButton(modifier = Modifier
                     .padding(bottom = 16.dp),
                     text = "About",
                     onClick = {
                         Log.d("Main Activity", "About button pressed.")
+                        val i = Intent(context, AboutScreen::class.java)
+                        context.startActivity(i)
                     })
             }
         }

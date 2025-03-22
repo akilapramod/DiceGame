@@ -53,18 +53,15 @@ class GameScreen : ComponentActivity() {
         setContent {
             DiceGameTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
-
-                    GameScreen(
-                        modifier = Modifier.padding(innerPadding),
-                    )
                     Image(
-                        painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper), // Replace with your image resource
+                        painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper),
                         contentDescription = "Background Image",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-
+                    GameScreen(
+                        modifier = Modifier.padding(innerPadding),
+                    )
                 }
             }
         }
@@ -77,7 +74,8 @@ fun GameScreen(modifier: Modifier = Modifier) {
     BaseScreenLayout {
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
 
@@ -302,6 +300,7 @@ fun GameScreen(modifier: Modifier = Modifier) {
                 text = "Score",
                 onClick = {
                     Log.d("Game Activity", "Score button pressed.")
+
                 })
 
 
@@ -310,7 +309,32 @@ fun GameScreen(modifier: Modifier = Modifier) {
                 text = "Throw",
                 onClick = {
                     Log.d("Game Activity", "Throw button pressed.")
+                    rollPlayerDice()
+                    rollComputerDice()
                 })
         }
     }}
+}
+
+fun rollPlayerDice(): IntArray {
+    val diceResults = IntArray(5)
+    val random = java.util.Random()
+
+    for (i in 0 until 5) {
+        diceResults[i] = random.nextInt(6) + 1
+    }
+    Log.d("Game Activity","Player rolled: ${diceResults.joinToString(", ")}")
+    return diceResults
+}
+
+fun rollComputerDice(): IntArray {
+    val diceResults = IntArray(5)
+    val random = java.util.Random()
+
+    for (i in 0 until 5) {
+        diceResults[i] = random.nextInt(6) + 1
+    }
+    Log.d("Game Activity","Computer rolled: ${diceResults.joinToString(", ")}")
+
+    return diceResults
 }

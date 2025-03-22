@@ -13,7 +13,6 @@ class MainActivity : ComponentActivity() {
             DiceGameTheme {
                 HomeScreen()
                 }
-
             }
         }
     }
