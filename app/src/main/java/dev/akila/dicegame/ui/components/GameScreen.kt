@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
@@ -91,6 +92,9 @@ fun GameScreenContent(modifier: Modifier = Modifier) {
 
     var hasThrown by rememberSaveable { mutableStateOf(false) }
 
+    var rerollsLeft by rememberSaveable { mutableStateOf(2) }
+    var selectedDice by remember { mutableStateOf(BooleanArray(5)) }
+
 
     val updateUI = {
         gameState++
@@ -100,6 +104,8 @@ fun GameScreenContent(modifier: Modifier = Modifier) {
         computerWins = gameInstance.getComputerWins()
         playerDicevalues = gameInstance.getPlayerDiceResult()
         computerDicevalues = gameInstance.getComputerDiceResult()
+        selectedDice = gameInstance.getSelectedDice()
+        rerollsLeft = gameInstance.getRemainingRerolls()
     }
 
     fun getDiceDrawable(value: Int): Int {
@@ -194,7 +200,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {
 
             }
 
-            //this box is responsible to show the dices and player name "Computer"
+            //this box is responsible to show the dices and Computer Player
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -229,7 +235,6 @@ fun GameScreenContent(modifier: Modifier = Modifier) {
                     }
 
                 }
-
             }
 
 
@@ -246,62 +251,80 @@ fun GameScreenContent(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                    playerDicevalues.forEach { diceValue ->
+                    playerDicevalues.forEachIndexed { index, diceValue ->
                         Image(
                             painter = painterResource(id = getDiceDrawable(diceValue)),
                             contentDescription = "Dice showing $diceValue",
                             modifier = Modifier
                                 .size(60.dp)
                                 .padding(4.dp)
+                                .clickable {
+                                    if (!hasThrown) { // Only allow holding after initial throw
+                                        gameInstance.selectDie(index)
+                                        updateUI()
+                                    } else {
+                                        val success = gameInstance.rerollUnselectedDice()
+                                        if (success) {
+                                            updateUI()
+                                        }
+                                    }
+                                }
+                                .border(
+                                    BorderStroke(
+                                        2.dp,
+                                        if (selectedDice[index]) Color.Green
+                                        else Color.Transparent
+                                    ), shape = RoundedCornerShape(8.dp)
+                                )
                         )
                     }
+                    }
+
+                    Text(
+                        text = "Player",
+                        style = TextStyle(
+                            fontFamily = happyMonkeyFont,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                        )
+                    )
                 }
 
-                Text(
-                    text = "Player",
-                    style = TextStyle(
-                        fontFamily = happyMonkeyFont,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
-                )
-            }
 
-
-            // this row is to display the score button and the throw button.
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                PrimaryButton(modifier = Modifier
-                    .padding(bottom = 16.dp),
-                    text = "Score",
-                    onClick = {
-                        gameInstance.calculateScore()
-                        updateUI()
-                        Log.d("Game Activity", "Score button pressed.")
-                    })
-
-
-                PrimaryButton(modifier = Modifier
-                    .padding(bottom = 16.dp),
-                    text = if (hasThrown) "Reroll" else "Throw",
-                    onClick = {
-                        if (!hasThrown) {
-                            gameInstance.rollDice()
-                            hasThrown = true
+                // this row is to display the score button and the throw button.
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    PrimaryButton(modifier = Modifier
+                        .padding(bottom = 16.dp),
+                        text = "Score",
+                        onClick = {
+                            gameInstance.calculateScore()
                             updateUI()
-                            Log.d("Game Activity", "Throw button pressed.")
-                        }else{
-                            gameInstance.rollDice()
-                            updateUI()
-                            Log.d("Game Activity", "Reroll button pressed.")
+                            Log.d("Game Activity", "Score button pressed.")
+                        })
+
+
+                    PrimaryButton(modifier = Modifier
+                        .padding(bottom = 16.dp),
+                        text = if (hasThrown) "Reroll" else "Throw",
+                        onClick = {
+                            if (!hasThrown) {
+                                gameInstance.rollDice()
+                                hasThrown = true
+                                updateUI()
+                                Log.d("Game Activity", "Throw button pressed.")
+                            } else {
+                                gameInstance.rollDice()
+                                updateUI()
+                                Log.d("Game Activity", "Reroll button pressed.")
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
-}
 

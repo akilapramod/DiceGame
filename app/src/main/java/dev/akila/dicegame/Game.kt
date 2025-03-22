@@ -8,6 +8,10 @@ class Game {
     private var playerScore = 0
     private var computerScore = 0
 
+    //this variablea are used for the player rerolling
+    private var rerollsRemaining = 2
+    private var selectedDice = BooleanArray(5) { false }
+
     // Current dice rolls
     private var playerDice = IntArray(5)
     private var computerDice = IntArray(5)
@@ -19,13 +23,45 @@ class Game {
     // Roll dice for both player and computer
     fun rollDice() {
         playerDice = generateDiceRoll()
-        println(playerDice.joinToString(", "))
         computerDice = generateDiceRoll()
-        println(playerDice.joinToString(", "))
+
+        Log.d("Game", "Player dice: ${playerDice.joinToString(", ")}")
+        Log.d("Game", "Computer dice: ${computerDice.joinToString(", ")}")
     }
 
-    //this function is used to roll the dice except the dice that are selected.
+    /*
+    This function allows the player to select or deselect a die by tapping on it. Each time the
+    function is called for a particular die, it switches that die's state between selected and not
+    selected.
+     */
+    fun selectDie(index: Int){
+        selectedDice[index] = !selectedDice[index]
+    }
 
+
+    //this function is used to reroll the unselected dice.
+    fun rerollUnselectedDice(): Boolean {
+        if (rerollsRemaining > 0) {
+            for (i in playerDice.indices) {
+                if (!selectedDice[i]) {
+                    playerDice[i] = Random.nextInt(1, 7)
+                }
+            }
+            rerollsRemaining--
+            return true
+        }
+        return false
+    }
+
+
+    fun resetForNewRound() {
+        rerollsRemaining = 2
+        selectedDice = BooleanArray(5) { false }
+    }
+
+
+
+    //this function is used to roll the dice except the dice that are selected.
     // Create an Integer array and Generate 5 random dice values  then
     // store them in the Array
     private fun generateDiceRoll(): IntArray {
@@ -77,6 +113,8 @@ class Game {
     fun getPlayerSCore(): Int =playerScore
     fun getPlayerWins(): Int = playerWins
     fun getComputerWins(): Int = computerWins
+    fun getRemainingRerolls(): Int = rerollsRemaining
+    fun getSelectedDice(): BooleanArray = selectedDice
     }
 
 
