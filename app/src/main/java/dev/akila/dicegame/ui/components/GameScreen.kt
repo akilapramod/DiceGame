@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.akila.dicegame.Game
 import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
@@ -59,7 +61,7 @@ class GameScreen : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-                    GameScreen(
+                    GameScreenContent(
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -70,98 +72,137 @@ class GameScreen : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GameScreen(modifier: Modifier = Modifier) {
+fun GameScreenContent(modifier: Modifier = Modifier) {
+    /*
+    this creates a object of the game class and
+     */
+
+    val gameInstance = remember { Game() }
+    var gameState by remember { mutableStateOf(0) }
+
+    var playerScore by rememberSaveable { mutableStateOf(0) }
+    var computerScore by rememberSaveable { mutableStateOf(0) }
+
+    var playerWins by rememberSaveable { mutableStateOf(0) }
+    var computerWins by rememberSaveable { mutableStateOf(0) }
+
+    var playerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
+    var computerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
+
+    var hasThrown by rememberSaveable { mutableStateOf(false) }
+
+
+    val updateUI = {
+        gameState++
+        playerScore = gameInstance.getPlayerSCore()
+        computerScore = gameInstance.getComputerScore()
+        playerWins = gameInstance.getPlayerWins()
+        computerWins = gameInstance.getComputerWins()
+        playerDicevalues = gameInstance.getPlayerDiceResult()
+        computerDicevalues = gameInstance.getComputerDiceResult()
+    }
+
+    fun getDiceDrawable(value: Int): Int {
+        return when (value) {
+            1 -> R.drawable.dice1
+            2 -> R.drawable.dice2
+            3 -> R.drawable.dice3
+            4 -> R.drawable.dice4
+            5 -> R.drawable.dice5
+            6 -> R.drawable.dice6
+            else -> R.drawable.default_dice // Default to dice1 if something goes wrong
+        }
+    }
     BaseScreenLayout {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceAround
-
-    ) {
-        //this row is responsible for the score display
-
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceAround
         ) {
-            Box(
+            //this row is responsible for the score display
+
+            Row(
                 modifier = Modifier
-                    .background(primaryColor)
-                    .padding(8.dp)
-
-            )
-            {
-                Row() {
-                    Image(
-                        painter = painterResource(id = R.drawable.robot),
-                        contentDescription = "robot Image",
-                        modifier = Modifier.size(48.dp)
-
-                    )
-                    Text(
-                        text = ": 0",
-                        style = TextStyle(
-                            fontFamily = happyMonkeyFont,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                ContentBox(modifier = Modifier.padding(8.dp), "H: $playerWins/ C:$computerWins")
+                Box(
+                    modifier = Modifier
+                        .background(primaryColor)
+                        .padding(8.dp)
+                )
+                {
+                    Row() {
+                        Image(
+                            painter = painterResource(id = R.drawable.robot),
+                            contentDescription = "robot Image",
+                            modifier = Modifier.size(48.dp)
                         )
-                    )
+                        Text(
+                            text = ": $computerScore",
+
+                            style = TextStyle(
+                                fontFamily = happyMonkeyFont,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black,
+                            )
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .background(primaryColor)
+                        .padding(8.dp)
+                )
+
+                {
+                    Row() {
+                        Text(
+                            text = "$playerScore :",
+                            style = TextStyle(
+                                fontFamily = happyMonkeyFont,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black,
+                            )
+                        )
+
+                        Image(
+                            painter = painterResource(id = R.drawable.player),
+                            contentDescription = "player Image",
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .background(primaryColor)
-                    .padding(8.dp)
-            )
+            //this row is responsible for a Win Loose ratio and total score
 
-            {
-                Row() {
-                    Text(
-                        text = ": 0",
-                        style = TextStyle(
-                            fontFamily = happyMonkeyFont,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                        )
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
 
-                    Image(
-                        painter = painterResource(id = R.drawable.player),
-                        contentDescription = "player Image",
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
+                ContentBox(modifier, "Total Score : ")
+
+
             }
-        }
 
-        //this row is responsible for Win Loose ratio and total score
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ContentBox(modifier,"H:10/C:5")
-            ContentBox(modifier,"Total Score : ")
-
-
-        }
-
-        //this box is responsible to show the dices and player name "Computer"
-
+            //this box is responsible to show the dices and player name "Computer"
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(primaryColor)
-                    .border(border = BorderStroke(4.dp, Color.Black),
-                        shape = RoundedCornerShape(8.dp))
-                , // Or other modifiers
+                    .border(
+                        border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp)
+                    ),
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -175,107 +216,45 @@ fun GameScreen(modifier: Modifier = Modifier) {
                     )
                 )
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                    Image(
-                        painter = painterResource(id = R.drawable.dice1),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
 
+                    //map each value of the dice array to its relevant image.
+                    computerDicevalues.forEach { diceValue ->
+                        Image(
+                            painter = painterResource(id = getDiceDrawable(diceValue)),
+                            contentDescription = "Dice showing $diceValue",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .padding(4.dp)
+                        )
+                    }
 
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice2),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice3),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice4),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice5),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
                 }
 
             }
 
 
-        //this box is responsible to show the dices and name for human player
-
-
+            //this box is responsible to show the dices and name for human player
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(primaryColor)
-                    .border(border = BorderStroke(4.dp, Color.Black),
-                    shape = RoundedCornerShape(8.dp))
-                    , // Or other modifiers
+                    .border(
+                        border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp)
+                    ), // Or other modifiers
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                    Image(
-                        painter = painterResource(id = R.drawable.dice1),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice2),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice3),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice4),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.dice5),
-                        contentDescription = "Image 1",
-                        modifier = Modifier
-                            .size(60.dp)
-                            .padding(4.dp)
-                        ,
-                    )
+                    playerDicevalues.forEach { diceValue ->
+                        Image(
+                            painter = painterResource(id = getDiceDrawable(diceValue)),
+                            contentDescription = "Dice showing $diceValue",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .padding(4.dp)
+                        )
+                    }
                 }
 
                 Text(
@@ -290,51 +269,39 @@ fun GameScreen(modifier: Modifier = Modifier) {
             }
 
 
+            // this row is to display the score button and the throw button.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                PrimaryButton(modifier = Modifier
+                    .padding(bottom = 16.dp),
+                    text = "Score",
+                    onClick = {
+                        gameInstance.calculateScore()
+                        updateUI()
+                        Log.d("Game Activity", "Score button pressed.")
+                    })
 
-        // this row is to display the score botton and the throw botton.
-        Row(modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween) {
 
-            PrimaryButton(modifier = Modifier
-                .padding(bottom = 16.dp),
-                text = "Score",
-                onClick = {
-                    Log.d("Game Activity", "Score button pressed.")
-
-                })
-
-
-            PrimaryButton(modifier = Modifier
-                .padding(bottom = 16.dp),
-                text = "Throw",
-                onClick = {
-                    Log.d("Game Activity", "Throw button pressed.")
-                    rollPlayerDice()
-                    rollComputerDice()
-                })
+                PrimaryButton(modifier = Modifier
+                    .padding(bottom = 16.dp),
+                    text = if (hasThrown) "Reroll" else "Throw",
+                    onClick = {
+                        if (!hasThrown) {
+                            gameInstance.rollDice()
+                            hasThrown = true
+                            updateUI()
+                            Log.d("Game Activity", "Throw button pressed.")
+                        }else{
+                            gameInstance.rollDice()
+                            updateUI()
+                            Log.d("Game Activity", "Reroll button pressed.")
+                        }
+                    }
+                )
+            }
         }
-    }}
-}
-
-fun rollPlayerDice(): IntArray {
-    val diceResults = IntArray(5)
-    val random = java.util.Random()
-
-    for (i in 0 until 5) {
-        diceResults[i] = random.nextInt(6) + 1
     }
-    Log.d("Game Activity","Player rolled: ${diceResults.joinToString(", ")}")
-    return diceResults
 }
 
-fun rollComputerDice(): IntArray {
-    val diceResults = IntArray(5)
-    val random = java.util.Random()
-
-    for (i in 0 until 5) {
-        diceResults[i] = random.nextInt(6) + 1
-    }
-    Log.d("Game Activity","Computer rolled: ${diceResults.joinToString(", ")}")
-
-    return diceResults
-}
