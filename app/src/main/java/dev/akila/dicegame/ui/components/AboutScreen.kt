@@ -12,14 +12,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.akila.dicegame.ui.theme.DiceGameTheme
+import dev.akila.dicegame.ui.theme.happyMonkeyFont
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.Alignment
 
-class AboutScreem : ComponentActivity() {
+class AboutScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,17 +44,35 @@ class AboutScreem : ComponentActivity() {
 fun AboutScreen(modifier: Modifier = Modifier) {
     DiceGameTheme {
         BaseScreenLayout {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-
-
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Text(
+                    text = "About",
+                    style = TextStyle(
+                        fontSize = 48.sp,
+                        fontFamily = happyMonkeyFont,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White
+                    ),
+                    modifier = Modifier.padding(vertical = 32.dp)
+                )
+                
                 Text(
                     text = "I confirm that I understand what plagiarism is and have read and understood " +
                             "the section on Assessment Offences in the Essential Information for Students. " +
                             "The work that I have submitted is entirely my own. Any work from other authors " +
-                            "is duly referenced and acknowledged."
+                            "is duly referenced and acknowledged.",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontFamily = happyMonkeyFont,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White
+                    ),
+                    modifier = Modifier.padding(16.dp)
                 )
             }
         }
