@@ -1,16 +1,21 @@
 package dev.akila.dicegame.ui.components
 
+import android.content.Intent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 
 
 import android.os.Bundle
-import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -92,14 +97,51 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         val i = Intent(context, GameScreen::class.java)
                         context.startActivity(i)
                     })
+                var showAboutDialog by rememberSaveable { mutableStateOf(false) }
+                
                 PrimaryButton(modifier = Modifier
                     .padding(bottom = 16.dp),
                     text = "About",
                     onClick = {
                         Log.d("Main Activity", "About button pressed.")
-                        val i = Intent(context, AboutScreen::class.java)
-                        context.startActivity(i)
+                        showAboutDialog = true
                     })
+                
+                if (showAboutDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showAboutDialog = false },
+                        title = { 
+                            Text(
+                                text = "About",
+                                style = TextStyle(
+                                    fontSize = 24.sp,
+                                    fontFamily = happyMonkeyFont,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                            )
+                        },
+                        text = { 
+                            Text(
+                                text = "I confirm that I understand what plagiarism is and have read and understood " +
+                                    "the section on Assessment Offences in the Essential Information for Students. " +
+                                    "The work that I have submitted is entirely my own. Any work from other authors " +
+                                    "is duly referenced and acknowledged.",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = happyMonkeyFont,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
+                            )
+                        },
+                        confirmButton = {
+                            PrimaryButton(modifier = Modifier.padding(8.dp),
+                                text = "OK",
+                                onClick = { showAboutDialog = false })
+                        }
+                    )
+                }
             }
         }
     }
