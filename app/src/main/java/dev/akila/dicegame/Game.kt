@@ -12,13 +12,22 @@ class Game {
     private var rerollsRemaining = 2
     private var selectedDice = BooleanArray(5) { false }
 
+    private var computerTookTurn = false
+
     // Current dice rolls
     private var playerDice = IntArray(5)
     private var computerDice = IntArray(5)
 
+    private var playerRoundScore = 0
+    private var computerRoundScore = 0
+
     // Win-loss record
     private var playerWins = 0
     private var computerWins = 0
+
+    private val WINNING_SCORE = 50
+    private var gameOver = false
+    private var winner = "" // "player", "computer", or empty for ongoing game
 
     // Roll dice for both player and computer
     fun rollDice() {
@@ -34,31 +43,32 @@ class Game {
     function is called for a particular die, it switches that die's state between selected and not
     selected.
      */
-    fun selectDie(index: Int){
+    fun selectDie(index: Int) {
         selectedDice[index] = !selectedDice[index]
+        Log.d("Game", "Die $index selected: ${selectedDice[index]}")
     }
 
 
     //this function is used to reroll the unselected dice.
     fun rerollUnselectedDice(): Boolean {
         if (rerollsRemaining > 0) {
+            Log.d("Game", "Before reroll - Player dice: ${playerDice.joinToString(", ")}")
             for (i in playerDice.indices) {
                 if (!selectedDice[i]) {
                     playerDice[i] = Random.nextInt(1, 7)
                 }
             }
             rerollsRemaining--
+            // Update player round score after reroll
+            playerRoundScore = calculateRoundScore(playerDice)
+
+            Log.d("Game", "After reroll - Player dice: ${playerDice.joinToString(", ")}")
+            Log.d("Game", "Updated player round score: $playerRoundScore")
+            Log.d("Game", "Rerolls remaining: $rerollsRemaining")
             return true
         }
         return false
     }
-
-
-    fun resetForNewRound() {
-        rerollsRemaining = 2
-        selectedDice = BooleanArray(5) { false }
-    }
-
 
 
     //this function is used to roll the dice except the dice that are selected.
@@ -86,36 +96,101 @@ class Game {
     previous Rice roll rounds.
      */
     fun calculateScore() {
-        val playerRoundScore = calculateRoundScore(playerDice)
-        val computerRoundScore = calculateRoundScore(computerDice)
+        playerRoundScore = calculateRoundScore(playerDice)
+        computerRoundScore = calculateRoundScore(computerDice)
+
+        Log.d("Game", "Round scores - Player: $playerRoundScore, Computer: $computerRoundScore")
+
 
         // Update total scores
         playerScore += playerRoundScore
-        println("Player score:$playerScore")
         computerScore += computerRoundScore
-        println("Computer score:$computerScore")
 
-        // Update win/loss record
-        if (playerRoundScore > computerRoundScore) {
-            println("Player wins")
+        //check if the game is over
+        if (playerScore >= WINNING_SCORE) {
+            gameOver = true
+            winner = "player"
             playerWins++
-        } else if (computerRoundScore > playerRoundScore) {
-            println("Computer wins")
+            Log.d("Game", "Game over! Player wins with score: $playerScore")
+        } else if (computerScore >= WINNING_SCORE) {
+            gameOver = true
+            winner = "computer"
             computerWins++
+            Log.d("Game", "Game over! Computer wins with score: $computerScore")
         }
-        // If equal, no change to win/loss record
+
+        // Reset for next round
+        computerTookTurn = false
+    }
+
+    fun computerTurn() {
+        rerollsRemaining = 2
+
+        // Computer rolls dice
+        computerDice = generateDiceRoll()
+        Log.d("Game", "Initial computer dice: ${computerDice.joinToString(", ")}")
+
+
+        //calculate computer score after first roll
+        computerRoundScore = calculateRoundScore(computerDice)
+
+        val rerollThreshold = 3 // Consider dice with value 3 or lower as low
+
+        val computerSelectedDice = BooleanArray(5) { computerDice[it] > rerollThreshold }
+
+
+        // First reroll
+        if (rerollsRemaining > 0) {
+            for (i in computerDice.indices) {
+                if (computerDice[i] <= rerollThreshold) {
+                    computerDice[i] = Random.nextInt(1, 7)
+                }
+            }
+            rerollsRemaining--
+            Log.d("Game", "After first reroll - Computer dice: ${computerDice.joinToString(", ")}")
+
+        }
+
+        // Second reroll if needed
+        if (rerollsRemaining > 0) {
+            for (i in computerDice.indices) {
+                if (computerDice[i] <= rerollThreshold) {
+                    computerDice[i] = Random.nextInt(1, 7)
+                }
+            }
+            rerollsRemaining--
+            Log.d("Game", "After second reroll - Computer dice: ${computerDice.joinToString(", ")}")
+        }
+
+        // Calculate computer's round score
+        computerRoundScore = calculateRoundScore(computerDice)
+        Log.d("Game", "Final computer round score: $computerRoundScore")
+
+
+        computerTookTurn = true
+        //computer turn is over.
+
+    }
+
+    fun resetForNewRound() {
+        rerollsRemaining = 2
+        selectedDice = BooleanArray(5) { false }
+        Log.d("Game", "Reset for new round. Rerolls reset to: $rerollsRemaining")
     }
 
     //Getters for accessing game data
     fun getPlayerDiceResult(): IntArray = playerDice
     fun getComputerDiceResult(): IntArray = computerDice
-    fun getComputerScore(): Int =computerScore
-    fun getPlayerSCore(): Int =playerScore
+    fun getComputerScore(): Int = computerScore
+    fun getPlayerScore(): Int = playerScore
     fun getPlayerWins(): Int = playerWins
     fun getComputerWins(): Int = computerWins
     fun getRemainingRerolls(): Int = rerollsRemaining
     fun getSelectedDice(): BooleanArray = selectedDice
-    }
+    fun getPlayerRoundScore(): Int = playerRoundScore
+    fun getComputerRoundScore(): Int = computerRoundScore
+    fun getComputerTookTurn(): Boolean = computerTookTurn
+}
 
 
 

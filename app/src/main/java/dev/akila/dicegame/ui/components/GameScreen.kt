@@ -83,13 +83,24 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
     var playerScore by rememberSaveable { mutableStateOf(0) }
     var computerScore by rememberSaveable { mutableStateOf(0) }
 
+    var playerRoundScore by rememberSaveable { mutableStateOf(0) }
+    var computerRoundScore by rememberSaveable { mutableStateOf(0) }
+
     var playerWins by rememberSaveable { mutableStateOf(0) }
     var computerWins by rememberSaveable { mutableStateOf(0) }
 
     var playerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
     var computerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
 
+    //this variable is used to check if the player has thrown the dice for the first time in the round or not.
     var hasThrown by rememberSaveable { mutableStateOf(false) }
+
+    //this tracks the turn of the computer
+    var computerTookTurn by rememberSaveable { mutableStateOf(false) }
+
+    //this variable is used to disable the score button until the player has thrown the dice
+    var scoreButtonEnabled by rememberSaveable { mutableStateOf(false) }
+    var throwButtonEnabled by rememberSaveable { mutableStateOf(true) }
 
     var rerollsLeft by rememberSaveable { mutableStateOf(2) }
     var selectedDice by remember { mutableStateOf(BooleanArray(5)) }
@@ -97,19 +108,23 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
 
     val updateUI = {
         gameState++
-        playerScore = gameInstance.getPlayerSCore()
+        playerScore = gameInstance.getPlayerScore() 
         computerScore = gameInstance.getComputerScore()
+        playerRoundScore = gameInstance.getPlayerRoundScore()
+        computerRoundScore = gameInstance.getComputerRoundScore()
         playerWins = gameInstance.getPlayerWins()
         computerWins = gameInstance.getComputerWins()
+
         playerDicevalues = gameInstance.getPlayerDiceResult()
         computerDicevalues = gameInstance.getComputerDiceResult()
+
+        computerTookTurn = gameInstance.getComputerTookTurn()
 
         /*
         Create a copy of the array to trigger recomposition. without this
         the UI will not update imedietely when the dice are selected or
          unselected.
          */
-
         selectedDice = gameInstance.getSelectedDice().copyOf()
         rerollsLeft = gameInstance.getRemainingRerolls()
     }
@@ -134,7 +149,6 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
             verticalArrangement = Arrangement.SpaceAround
         ) {
             //this row is responsible for the score display
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -293,10 +307,29 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
                     text = "Score",
                     onClick = {
-                        gameInstance.calculateScore()
-                        updateUI()
-                        Log.d("Game Activity", "Score button pressed.")
-                    })
+                        if (!computerTookTurn){
+
+                            // Player ends turn, computer's turn starts
+                            gameInstance.computerTurn()
+                            updateUI()
+                            Log.d("Game Activity", "Player ended turn, computer's turn started.")}
+                        else {
+                            //Computer has taken turn, end the round
+                            gameInstance.calculateScore()
+                            hasThrown = false // Reset for next round
+                            scoreButtonEnabled = false
+                            throwButtonEnabled = true
+                            gameInstance.resetForNewRound()
+                            updateUI()
+                            Log.d("Game Activity", "Round completed, scores calculated.")
+
+                            if (playerScore >= 50 || computerScore >= 50) {
+                                // Show game over dialog or update UI accordingly
+                                Log.d("Game Activity", "Game over! Winner: ${if (playerScore >= 50) "Player" else "Computer"}")
+                            }
+                        }
+                    },
+                    enabled = hasThrown)
 
 
                 PrimaryButton(
@@ -312,12 +345,18 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                         } else {
                             // Reroll
                             val reroll = gameInstance.rerollUnselectedDice()
+                            updateUI()
+                            throwButtonEnabled = rerollsLeft > 0 || !hasThrown
+
                             if (reroll) {
                                 updateUI()
-                                Log.d("Game Activity", "Reroll button pressed. Rerolls left: $rerollsLeft")
+                            }else {
+                                throwButtonEnabled = false
+                                //updateUI()
+                                Log.d("Game Activity", "No rerolls left.")
                             }
                         }
-                    }
+                    }, enabled = throwButtonEnabled
                 )
             }
         }

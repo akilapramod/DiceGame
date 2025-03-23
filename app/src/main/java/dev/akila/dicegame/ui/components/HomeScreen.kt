@@ -106,7 +106,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PrimaryButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
+fun PrimaryButton(modifier: Modifier = Modifier, text: String,
+                  onClick: () -> Unit,
+                  enabled: Boolean = true) {
     Button(
         modifier = modifier
             .border(
@@ -115,9 +117,15 @@ fun PrimaryButton(modifier: Modifier = Modifier, text: String, onClick: () -> Un
             )
             .clip(RoundedCornerShape(8.dp)),
         onClick = onClick,
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = buttonColor,
             contentColor = Color.Black,
+            /*this is to show the user tht the button is disabled
+            by making the button faded and greyed out
+             */
+            disabledContainerColor = buttonColor.copy(alpha = 0.5f),
+            disabledContentColor = Color.Gray
         )
     ) {
         Text(
@@ -140,7 +148,7 @@ fun PrimaryTitleBox(modifier: Modifier = Modifier, text: String) {
             .background(buttonColor)
             .clip(RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Text(
             text = text,
             style = TextStyle(
@@ -155,16 +163,19 @@ fun PrimaryTitleBox(modifier: Modifier = Modifier, text: String) {
 
 //this is the primary content box
 @Composable
-fun ContentBox(modifier: Modifier = Modifier,text: String ){
+fun ContentBox(modifier: Modifier = Modifier, text: String) {
     Box(
         modifier = modifier
-            .border(border = BorderStroke(4.dp, Color.Black),
-                shape = RoundedCornerShape(8.dp))
+            .border(
+                border = BorderStroke(4.dp, Color.Black),
+                shape = RoundedCornerShape(8.dp)
+            )
             .background(primaryColor)
             .clip(RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center
-    ){
-        Text(modifier = Modifier.padding(15.dp),
+    ) {
+        Text(
+            modifier = Modifier.padding(15.dp),
             text = text,
             style = TextStyle(
                 fontFamily = happyMonkeyFont,
@@ -183,14 +194,16 @@ fun BaseScreenLayout(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier.fillMaxSize().background(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFF81AFD4),
-                    Color(0xFF34769F)
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF81AFD4),
+                        Color(0xFF34769F)
+                    )
                 )
             )
-        )
     ) {
         Image(
             painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper),
