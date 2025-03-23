@@ -160,54 +160,17 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                     modifier = Modifier
                         .background(primaryColor)
                         .padding(8.dp)
-                ) {
-                    Row() {
-                        Image(
-                            painter = painterResource(id = R.drawable.robot),
-                            contentDescription = "robot Image",
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Text(
-                            text = ": $computerScore",
+                )
 
-                            style = TextStyle(
-                                fontFamily = happyMonkeyFont,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black,
-                            )
-                        )
-                    }
-                }
-
+                ContentBox(modifier = Modifier.padding(8.dp), "C : $computerScore H:$playerScore ")
                 Box(
                     modifier = Modifier
                         .background(primaryColor)
                         .padding(8.dp)
                 )
-
-                {
-                    Row() {
-                        Text(
-                            text = "$playerScore :", style = TextStyle(
-                                fontFamily = happyMonkeyFont,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black,
-                            )
-                        )
-
-                        Image(
-                            painter = painterResource(id = R.drawable.player),
-                            contentDescription = "player Image",
-                            modifier = Modifier.size(48.dp)
-                        )
-                    }
-                }
             }
 
-            //this row is responsible for a Win Loose ratio and total score
-
+            //this row is responsible for total score
             Row(
                 modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
