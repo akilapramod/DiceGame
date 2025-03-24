@@ -25,16 +25,19 @@ class Game {
     private var playerWins = 0
     private var computerWins = 0
 
-    private val WINNING_SCORE = 50
+    private val winningScore = 50
     private var gameOver = false
     private var winner = "" // "player", "computer", or empty for ongoing game
 
-    // Roll dice for both player and computer
-    fun rollDice() {
+    // Roll dice for player only
+    fun rollPlayerDice() {
         playerDice = generateDiceRoll()
-        computerDice = generateDiceRoll()
-
         Log.d("Game", "Player dice: ${playerDice.joinToString(", ")}")
+    }
+
+    // Roll dice for computer only
+    fun rollComputerDice() {
+        computerDice = generateDiceRoll()
         Log.d("Game", "Computer dice: ${computerDice.joinToString(", ")}")
     }
 
@@ -47,7 +50,6 @@ class Game {
         selectedDice[index] = !selectedDice[index]
         Log.d("Game", "Die $index selected: ${selectedDice[index]}")
     }
-
 
     //this function is used to reroll the unselected dice.
     fun rerollUnselectedDice(): Boolean {
@@ -70,7 +72,6 @@ class Game {
         return false
     }
 
-
     //this function is used to roll the dice except the dice that are selected.
     // Create an Integer array and Generate 5 random dice values  then
     // store them in the Array
@@ -90,29 +91,29 @@ class Game {
         return dice.sum()
     }
 
-
     /*
     Calculate the score for the player and computer by adding the
     previous Rice roll rounds.
      */
-    fun calculateScore() {
+    fun calculateScore(): Boolean {
+        if (gameOver) return false
+        
         playerRoundScore = calculateRoundScore(playerDice)
         computerRoundScore = calculateRoundScore(computerDice)
 
         Log.d("Game", "Round scores - Player: $playerRoundScore, Computer: $computerRoundScore")
-
 
         // Update total scores
         playerScore += playerRoundScore
         computerScore += computerRoundScore
 
         //check if the game is over
-        if (playerScore >= WINNING_SCORE) {
+        if (playerScore >= winningScore) {
             gameOver = true
             winner = "player"
             playerWins++
             Log.d("Game", "Game over! Player wins with score: $playerScore")
-        } else if (computerScore >= WINNING_SCORE) {
+        } else if (computerScore >= winningScore) {
             gameOver = true
             winner = "computer"
             computerWins++
@@ -121,23 +122,28 @@ class Game {
 
         // Reset for next round
         computerTookTurn = false
+        return true
+    }
+
+    fun resetGame() {
+        playerScore = 0
+        computerScore = 0
+        gameOver = false
+        winner = ""
+        resetForNewRound()
+        Log.d("Game", "Full game reset")
     }
 
     fun computerTurn() {
         rerollsRemaining = 2
-
-        // Computer rolls dice
-        computerDice = generateDiceRoll()
+        rollComputerDice()
         Log.d("Game", "Initial computer dice: ${computerDice.joinToString(", ")}")
-
 
         //calculate computer score after first roll
         computerRoundScore = calculateRoundScore(computerDice)
 
         val rerollThreshold = 3 // Consider dice with value 3 or lower as low
-
         val computerSelectedDice = BooleanArray(5) { computerDice[it] > rerollThreshold }
-
 
         // First reroll
         if (rerollsRemaining > 0) {
@@ -148,7 +154,6 @@ class Game {
             }
             rerollsRemaining--
             Log.d("Game", "After first reroll - Computer dice: ${computerDice.joinToString(", ")}")
-
         }
 
         // Second reroll if needed
@@ -166,15 +171,14 @@ class Game {
         computerRoundScore = calculateRoundScore(computerDice)
         Log.d("Game", "Final computer round score: $computerRoundScore")
 
-
         computerTookTurn = true
-        //computer turn is over.
-
     }
 
     fun resetForNewRound() {
         rerollsRemaining = 2
         selectedDice = BooleanArray(5) { false }
+        playerDice = IntArray(5) { 0 }
+        computerDice = IntArray(5) { 0 }
         Log.d("Game", "Reset for new round. Rerolls reset to: $rerollsRemaining")
     }
 
@@ -190,8 +194,6 @@ class Game {
     fun getPlayerRoundScore(): Int = playerRoundScore
     fun getComputerRoundScore(): Int = computerRoundScore
     fun getComputerTookTurn(): Boolean = computerTookTurn
+    fun isGameOver(): Boolean = gameOver
+    fun getWinner(): String = winner
 }
-
-
-
-

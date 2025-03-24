@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -144,35 +145,30 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             //this row is responsible for the score display
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                ContentBox(modifier = Modifier.padding(8.dp), "H: $playerWins/ C:$computerWins")
-                Box(
-                    modifier = Modifier
-                        .background(primaryColor)
-                        .padding(8.dp)
-                )
+                ContentBox(modifier, "H: $playerWins/ C:$computerWins")
 
-                ContentBox(modifier = Modifier.padding(8.dp), "C : $computerScore H:$playerScore ")
-                Box(
-                    modifier = Modifier
-                        .background(primaryColor)
-                        .padding(8.dp)
-                )
+                ContentBox(modifier, "C : $computerScore H:$playerScore ")
             }
 
             //this row is responsible for total score
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
                 ContentBox(modifier, "Total Score : ")
@@ -180,15 +176,17 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
 
             }
 
-            //this box is responsible to show the dices and Computer Player
+            //this box is responsible to show the dices and Computer
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1f)
+                    .wrapContentHeight()
                     .background(primaryColor)
                     .border(
-                        border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp)
+                        border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp)
                     ),
-                //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -199,7 +197,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                         color = Color.Black,
                     )
                 )
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
 
                     //map each value of the dice array to its relevant image.
                     computerDicevalues.forEach { diceValue ->
@@ -220,14 +218,17 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                   .weight(1f)
+                    .wrapContentHeight()
                     .background(primaryColor)
                     .border(
-                        border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp)
+                        border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp)
                     ), // Or other modifiers
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                     playerDicevalues.forEachIndexed { index, diceValue ->
                         Image(painter = painterResource(id = getDiceDrawable(diceValue)),
                             contentDescription = "Dice showing $diceValue",
@@ -238,8 +239,6 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                                     // Always allow selecting/deselecting dice after the first throw
                                     if (hasThrown) {
                                         gameInstance.selectDie(index)
-
-
                                         updateUI()
                                     }
                                 }
@@ -270,25 +269,27 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
                     text = "Score",
                     onClick = {
-                        if (!computerTookTurn){
-
+                        if (!computerTookTurn) {
                             // Player ends turn, computer's turn starts
                             gameInstance.computerTurn()
                             updateUI()
-                            Log.d("Game Activity", "Player ended turn, computer's turn started.")}
-                        else {
-                            //Computer has taken turn, end the round
-                            gameInstance.calculateScore()
-                            hasThrown = false // Reset for next round
-                            scoreButtonEnabled = false
-                            throwButtonEnabled = true
-                            gameInstance.resetForNewRound()
-                            updateUI()
-                            Log.d("Game Activity", "Round completed, scores calculated.")
-
-                            if (playerScore >= 50 || computerScore >= 50) {
-                                // Show game over dialog or update UI accordingly
-                                Log.d("Game Activity", "Game over! Winner: ${if (playerScore >= 50) "Player" else "Computer"}")
+                            Log.d("Game Activity", "Player ended turn, computer's turn started.")
+                        } else {
+                            // Computer has taken turn, end the round
+                            if (gameInstance.calculateScore()) {
+                                hasThrown = false
+                                scoreButtonEnabled = false
+                                throwButtonEnabled = true
+                                
+                                if (gameInstance.isGameOver()) {
+                                    // Show game over state
+                                    scoreButtonEnabled = false
+                                    throwButtonEnabled = false
+                                } else {
+                                    gameInstance.resetForNewRound()
+                                }
+                                updateUI()
+                                Log.d("Game Activity", "Round completed, scores calculated.")
                             }
                         }
                     },
@@ -298,10 +299,10 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 PrimaryButton(
                     modifier = Modifier.padding(bottom = 16.dp),
                     text = if (!hasThrown) "Throw" else "Reroll ($rerollsLeft left)",
-                    onClick = {
+                        onClick = {
                         if (!hasThrown) {
                             // First throw of the round
-                            gameInstance.rollDice()
+                            gameInstance.rollPlayerDice()
                             hasThrown = true
                             updateUI()
                             Log.d("Game Activity", "Throw button pressed.")
@@ -325,4 +326,3 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
         }
     }
 }
-
