@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -105,16 +107,18 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
 
     var rerollsLeft by rememberSaveable { mutableStateOf(2) }
     var selectedDice by remember { mutableStateOf(BooleanArray(5)) }
+    var isGameOver by rememberSaveable { mutableStateOf(false) }
 
 
     val updateUI = {
         gameState++
-        playerScore = gameInstance.getPlayerScore() 
+        playerScore = gameInstance.getPlayerScore()
         computerScore = gameInstance.getComputerScore()
         playerRoundScore = gameInstance.getPlayerRoundScore()
         computerRoundScore = gameInstance.getComputerRoundScore()
         playerWins = gameInstance.getPlayerWins()
         computerWins = gameInstance.getComputerWins()
+        isGameOver = gameInstance.isGameOver()
 
         playerDicevalues = gameInstance.getPlayerDiceResult()
         computerDicevalues = gameInstance.getComputerDiceResult()
@@ -285,6 +289,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                                     // Show game over state
                                     scoreButtonEnabled = false
                                     throwButtonEnabled = false
+                                    isGameOver = true
                                 } else {
                                     gameInstance.resetForNewRound()
                                 }
@@ -323,6 +328,36 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                     }, enabled = throwButtonEnabled
                 )
             }
+        }
+        if (isGameOver) {
+            AlertDialog(
+                onDismissRequest = {
+                    // Reset game state when dialog is dismissed
+                    isGameOver = false
+                    gameInstance.resetGame()
+                    updateUI()
+
+                },
+                title = { Text(text = "Game Over") },
+                text = {
+                    Text(
+                        text = if (playerWins > computerWins) "Congrats you win!"
+                        else "You lose, better luck next time"
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            // Reset game state when "OK" is clicked
+                            isGameOver = false
+                            gameInstance.resetGame()
+                            updateUI()
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
         }
     }
 }
