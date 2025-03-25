@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.text.font.FontWeight
 import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.AppColors.buttonColor
@@ -98,6 +99,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
                 var showTargetScoreDialog by rememberSaveable { mutableStateOf(false) }
                 var targetScoreText by rememberSaveable { mutableStateOf("101") }
+                var isHardMode by rememberSaveable { mutableStateOf(false) }
 
                 PrimaryButton(modifier = Modifier,
                     text = "New Game",
@@ -151,6 +153,19 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                                         unfocusedIndicatorColor = Color.Black,
                                     )
                                 )
+
+                                Row(modifier = Modifier.padding(top = 8.dp)) {
+                                    PrimaryButton(
+                                        text = "Hard Mode",
+                                        onClick = { isHardMode = true },
+                                        enabled = !isHardMode // Disable if already selected
+                                    )
+                                    PrimaryButton(
+                                        text = "Easy Mode",
+                                        onClick = { isHardMode = false },
+                                        enabled = isHardMode // Disable if already selected
+                                    )
+                                }
                             }
                         },
                         confirmButton = {
@@ -162,6 +177,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                                     val targetScore = targetScoreText.toIntOrNull() ?: 101
                                     val i = Intent(context, GameScreen::class.java)
                                     i.putExtra("targetScore", targetScore)
+                                    i.putExtra("isHardMode", isHardMode)
                                     context.startActivity(i)
                                 }
                             )
@@ -175,6 +191,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         }
                     )
                 }
+
 
                 var showAboutDialog by rememberSaveable { mutableStateOf(false) }
 

@@ -3,7 +3,7 @@ package dev.akila.dicegame
 import android.util.Log
 import kotlin.random.Random
 
-class Game(targetScore: Int = 101) {
+class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
 
     private var playerScore = 0
     private var computerScore = 0
@@ -127,17 +127,16 @@ class Game(targetScore: Int = 101) {
         computerTookTurn = false
         return true
     }
-
-    fun resetGame() {
-        playerScore = 0
-        computerScore = 0
-        gameOver = false
-        winner = ""
-        resetForNewRound()
-        Log.d("Game", "Full game reset")
+    
+    fun computerTurn() {
+        if (isHardMode) {
+            computerTurnHard()
+        } else {
+            computerTurnEasy()
+        }
     }
 
-    fun computerTurn() {
+    private fun computerTurnHard() {
         rerollsRemaining = 2
         rollComputerDice()
         Log.d("Game Activity", "Player ended turn, computer's turn started.")
@@ -147,7 +146,6 @@ class Game(targetScore: Int = 101) {
         computerRoundScore = calculateRoundScore(computerDice)
 
         val rerollThreshold = 3 // Consider dice with value 3 or lower as low
-        val computerSelectedDice = BooleanArray(5) { computerDice[it] > rerollThreshold }
 
         // First reroll
         if (rerollsRemaining > 0) {
@@ -176,6 +174,38 @@ class Game(targetScore: Int = 101) {
         Log.d("Game", "Final computer round score: $computerRoundScore")
 
         computerTookTurn = true
+    }
+
+    private fun computerTurnEasy() {
+        rerollsRemaining = 2
+        rollComputerDice()
+
+        repeat(2) { // Max 2 rerolls
+            if (rerollsRemaining > 0 && Random.nextBoolean()) { // 50% chance to reroll
+                val keepCount = Random.nextInt(1, 4) // Keep 1-3 dice
+                val indicesToKeep = computerDice.indices.shuffled().take(keepCount)
+
+                computerDice.forEachIndexed { i, _ ->
+                    if (i !in indicesToKeep) {
+                        computerDice[i] = Random.nextInt(1, 7)
+                    }
+                }
+                rerollsRemaining--
+                Log.d("Game", "Easy mode reroll ${it+1}: Kept indices $indicesToKeep, Dice: ${computerDice.contentToString()}")
+            }
+        }
+
+        computerRoundScore = calculateRoundScore(computerDice)
+        computerTookTurn = true
+    }
+
+    fun resetGame() {
+        playerScore = 0
+        computerScore = 0
+        gameOver = false
+        winner = ""
+        resetForNewRound()
+        Log.d("Game", "Full game reset")
     }
 
     fun resetForNewRound() {

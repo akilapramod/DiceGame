@@ -55,13 +55,15 @@ import android.content.Intent
 
 class GameScreen : ComponentActivity() {
     private var targetScore: Int = 101
+    private var isHardMode: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Retrieve targetScore from Intent
-        targetScore = intent.getIntExtra("targetScore", 101) // Default to 101 if not found
+        // Retrieve targetScore and isHardMode from Intent
+        targetScore = intent.getIntExtra("targetScore", 101)
+        isHardMode = intent.getBooleanExtra("isHardMode", true)
 
         setContent {
             DiceGameTheme {
@@ -74,7 +76,8 @@ class GameScreen : ComponentActivity() {
                     )
                     GameScreenContent(
                         modifier = Modifier.padding(innerPadding),
-                        targetScore = targetScore
+                        targetScore = targetScore,
+                        isHardMode = isHardMode
                     )
                 }
             }
@@ -84,12 +87,8 @@ class GameScreen : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101) {
-    /*
-    this creates a object of the game class and
-     */
-
-    val gameInstance = remember { Game(targetScore) }
+fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isHardMode: Boolean = true) {
+    val gameInstance = remember { Game(targetScore, isHardMode) }
     var gameState by remember { mutableStateOf(0) }
 
     var playerScore by rememberSaveable { mutableStateOf(0) }
@@ -177,12 +176,12 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101) {
                 ContentBox(modifier, "C : $computerScore H:$playerScore ")
             }
 
-            //this row is responsible for total score and target score
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 ContentBox(modifier, "Target Score : $targetScore")
+                ContentBox(modifier, "Mode: ${if (isHardMode) "Hard" else "Easy"}")
             }
 
 
