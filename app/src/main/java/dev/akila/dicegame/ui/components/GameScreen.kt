@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -49,12 +50,18 @@ import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
 import dev.akila.dicegame.ui.theme.AppColors.primaryColor
+import android.content.Intent
 
 
 class GameScreen : ComponentActivity() {
+    private var targetScore: Int = 101
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Retrieve targetScore from Intent
+        targetScore = intent.getIntExtra("targetScore", 101) // Default to 101 if not found
 
         setContent {
             DiceGameTheme {
@@ -67,6 +74,7 @@ class GameScreen : ComponentActivity() {
                     )
                     GameScreenContent(
                         modifier = Modifier.padding(innerPadding),
+                        targetScore = targetScore
                     )
                 }
             }
@@ -76,11 +84,12 @@ class GameScreen : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GameScreenContent(modifier: Modifier = Modifier) {/*
+fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101) {
+    /*
     this creates a object of the game class and
      */
 
-    val gameInstance = remember { Game() }
+    val gameInstance = remember { Game(targetScore) }
     var gameState by remember { mutableStateOf(0) }
 
     var playerScore by rememberSaveable { mutableStateOf(0) }
@@ -91,6 +100,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
 
     var playerWins by rememberSaveable { mutableStateOf(0) }
     var computerWins by rememberSaveable { mutableStateOf(0) }
+
 
     var playerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
     var computerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
@@ -150,12 +160,10 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = 8.dp),
+                    start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             //this row is responsible for the score display
             Row(
@@ -169,21 +177,19 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 ContentBox(modifier, "C : $computerScore H:$playerScore ")
             }
 
-            //this row is responsible for total score
+            //this row is responsible for total score and target score
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-
-                ContentBox(modifier, "Total Score : ")
-
-
+                ContentBox(modifier, "Target Score : $targetScore")
             }
+
 
             //this box is responsible to show the dices and Computer
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .wrapContentWidth()
                     .weight(1f)
                     .wrapContentHeight()
                     .background(primaryColor)
@@ -201,8 +207,8 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                         color = Color.Black,
                     )
                 )
+                //dice row
                 Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-
                     //map each value of the dice array to its relevant image.
                     computerDicevalues.forEach { diceValue ->
                         Image(
@@ -221,8 +227,8 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
             //this box is responsible to show the dices and name for human player
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                   .weight(1f)
+                    .wrapContentWidth()
+                    .weight(1f)
                     .wrapContentHeight()
                     .background(primaryColor)
                     .border(
@@ -277,7 +283,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                             // Player ends turn, computer's turn starts
                             gameInstance.computerTurn()
                             updateUI()
-                            Log.d("Game Activity", "Player ended turn, computer's turn started.")
+                            Log.d("Game Activity", "Computer's turn is over.")
                         } else {
                             // Computer has taken turn, end the round
                             if (gameInstance.calculateScore()) {
@@ -329,6 +335,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 )
             }
         }
+
         if (isGameOver) {
             AlertDialog(
                 onDismissRequest = {
@@ -341,8 +348,14 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 title = { Text(text = "Game Over") },
                 text = {
                     Text(
-                        text = if (playerWins > computerWins) "Congrats you win!"
-                        else "You lose, better luck next time"
+                        text = if (playerWins > computerWins)
+                            "Congrats you win!"
+                        else "You lose, better luck next time",
+                        style = TextStyle(
+                            if (playerWins > computerWins)
+                                Color.Green
+                            else Color.Red,
+                        )
                     )
                 },
                 confirmButton = {

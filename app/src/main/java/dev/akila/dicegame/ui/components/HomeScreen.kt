@@ -3,6 +3,10 @@ package dev.akila.dicegame.ui.components
 import android.content.Intent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.text.input.KeyboardType
 
 
 import android.os.Bundle
@@ -42,9 +46,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.akila.dicegame.Game
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -90,13 +96,85 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     text = " Dice Game "
                 )
 
+                var showTargetScoreDialog by rememberSaveable { mutableStateOf(false) }
+                var targetScoreText by rememberSaveable { mutableStateOf("101") }
+
                 PrimaryButton(modifier = Modifier,
                     text = "New Game",
                     onClick = {
                         Log.d("Main Activity", "New game button pressed.")
-                        val i = Intent(context, GameScreen::class.java)
-                        context.startActivity(i)
+                        showTargetScoreDialog = true
                     })
+
+                if (showTargetScoreDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showTargetScoreDialog = false },
+                        title = {
+                            Text(
+                                text = "Set Target Score",
+                                style = TextStyle(
+                                    fontSize = 24.sp,
+                                    fontFamily = happyMonkeyFont,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                            )
+                        },
+                        text = {
+                            Column() {
+                                Text(
+                                    text = "Enter the target score:",
+                                    style = TextStyle(
+                                        fontSize = 16.sp,
+                                        fontFamily = happyMonkeyFont,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.Black
+                                    )
+                                )
+                                OutlinedTextField(
+                                    value = targetScoreText,
+                                    onValueChange = {
+                                        // Only allow numeric input
+                                        if (it.all { char -> char.isDigit() }) {
+                                            targetScoreText = it
+                                        }
+                                    },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.colors(
+                                        focusedTextColor = Color.Black,
+                                        unfocusedTextColor = Color.Black,
+                                        focusedContainerColor = Color.White,
+                                        unfocusedContainerColor = Color.White,
+                                        cursorColor = Color.Black,
+                                        focusedIndicatorColor = Color.Black,
+                                        unfocusedIndicatorColor = Color.Black,
+                                    )
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            PrimaryButton(
+                                modifier = Modifier.padding(8.dp),
+                                text = "Start Game",
+                                onClick = {
+                                    showTargetScoreDialog = false
+                                    val targetScore = targetScoreText.toIntOrNull() ?: 101
+                                    val i = Intent(context, GameScreen::class.java)
+                                    i.putExtra("targetScore", targetScore)
+                                    context.startActivity(i)
+                                }
+                            )
+                        },
+                        dismissButton = {
+                            PrimaryButton(
+                                modifier = Modifier.padding(8.dp),
+                                text = "Cancel",
+                                onClick = { showTargetScoreDialog = false }
+                            )
+                        }
+                    )
+                }
 
                 var showAboutDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -248,7 +326,7 @@ fun BaseScreenLayout(
                         Color(0xFF34769F)
                     )
                 )
-            ),contentAlignment = Alignment.Center
+            ),
 
     ) {
         Image(

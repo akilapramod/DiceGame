@@ -3,10 +3,13 @@ package dev.akila.dicegame
 import android.util.Log
 import kotlin.random.Random
 
-class Game {
+class Game(targetScore: Int = 101) {
 
     private var playerScore = 0
     private var computerScore = 0
+
+    // Validate targetScore
+    private val winningScore = if (targetScore >= 1) targetScore else 101
 
     //this variablea are used for the player rerolling
     private var rerollsRemaining = 2
@@ -25,9 +28,9 @@ class Game {
     private var playerWins = 0
     private var computerWins = 0
 
-    private val winningScore = 50
+    //private val winningScore = 50
     private var gameOver = false
-    private var winner = "" // "player", "computer", or empty for ongoing game
+    private var winner = ""
 
     // Roll dice for player only
     fun rollPlayerDice() {
@@ -137,6 +140,7 @@ class Game {
     fun computerTurn() {
         rerollsRemaining = 2
         rollComputerDice()
+        Log.d("Game Activity", "Player ended turn, computer's turn started.")
         Log.d("Game", "Initial computer dice: ${computerDice.joinToString(", ")}")
 
         //calculate computer score after first roll
