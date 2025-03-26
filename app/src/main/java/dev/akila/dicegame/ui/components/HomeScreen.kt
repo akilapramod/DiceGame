@@ -55,10 +55,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.text.font.FontWeight
 import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.AppColors.buttonColor
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.window.DialogProperties
 import dev.akila.dicegame.ui.theme.AppColors.primaryColor
 
 class HomeActivity : ComponentActivity() {
@@ -100,6 +103,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 var showTargetScoreDialog by rememberSaveable { mutableStateOf(false) }
                 var targetScoreText by rememberSaveable { mutableStateOf("101") }
                 var isHardMode by rememberSaveable { mutableStateOf(false) }
+                var showAboutDialog by rememberSaveable { mutableStateOf(false) }
 
                 PrimaryButton(modifier = Modifier,
                     text = "New Game",
@@ -110,6 +114,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
                 if (showTargetScoreDialog) {
                     AlertDialog(
+                        modifier = Modifier
+                            .wrapContentWidth()  // Takes 90% of screen width
+                            .wrapContentHeight(),
+                        properties = DialogProperties(usePlatformDefaultWidth = false),
                         onDismissRequest = { showTargetScoreDialog = false },
                         title = {
                             Text(
@@ -192,62 +200,61 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     )
                 }
 
-
-                var showAboutDialog by rememberSaveable { mutableStateOf(false) }
-
                 PrimaryButton(modifier = Modifier
                     .padding(bottom = 16.dp),
-                text = "About",
-                onClick = {
-                    Log.d("Main Activity", "About button pressed.")
-                    showAboutDialog = true
-                })
+                    text = "About",
+                    onClick = {
+                        Log.d("Main Activity", "About button pressed.")
+                        showAboutDialog = true
+                    })
 
-            if (showAboutDialog) {
-                AlertDialog(
-                    onDismissRequest = { showAboutDialog = false },
-                    title = {
-                        Text(
-                            text = "About",
-                            style = TextStyle(
-                                fontSize = 24.sp,
-                                fontFamily = happyMonkeyFont,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
+                if (showAboutDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showAboutDialog = false },
+                        title = {
+                            Text(
+                                text = "About",
+                                style = TextStyle(
+                                    fontSize = 24.sp,
+                                    fontFamily = happyMonkeyFont,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
                             )
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = "UoW Student ID: w2083738, Name: Akila Pramod\n" +
-                                    "I confirm that I understand what plagiarism is and have read and understood " +
-                                "the section on Assessment Offences in the Essential Information for Students. " +
-                                "The work that I have submitted is entirely my own. Any work from other authors " +
-                                "is duly referenced and acknowledged.",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = happyMonkeyFont,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black
+                        },
+                        text = {
+                            Text(
+                                text = "UoW Student ID: w2083738, Name: Akila Pramod\n" +
+                                        "I confirm that I understand what plagiarism is and have read and understood " +
+                                        "the section on Assessment Offences in the Essential Information for Students. " +
+                                        "The work that I have submitted is entirely my own. Any work from other authors " +
+                                        "is duly referenced and acknowledged.",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = happyMonkeyFont,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black
+                                )
                             )
-                        )
-                    },
-                    confirmButton = {
-                        PrimaryButton(modifier = Modifier.padding(8.dp),
-                            text = "OK",
-                            onClick = { showAboutDialog = false })
-                    }
-                )
+                        },
+                        confirmButton = {
+                            PrimaryButton(modifier = Modifier.padding(8.dp),
+                                text = "OK",
+                                onClick = { showAboutDialog = false })
+                        }
+                    )
+                }
             }
         }
     }
 }
-}
 
 @Composable
-fun PrimaryButton(modifier: Modifier = Modifier, text: String,
-                  onClick: () -> Unit,
-                  enabled: Boolean = true) {
+fun PrimaryButton(
+    modifier: Modifier = Modifier, text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
     Button(
         modifier = modifier
             .border(
@@ -335,7 +342,7 @@ fun BaseScreenLayout(
 ) {
     Box(
         modifier = modifier
-            .fillMaxSize()
+            //.fillMaxSize(1f)
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -345,7 +352,7 @@ fun BaseScreenLayout(
                 )
             ),
 
-    ) {
+        ) {
         Image(
             painter = painterResource(id = R.drawable.blue_dice_bokeh_wallapper),
             contentDescription = "Background Image",

@@ -61,9 +61,9 @@ class GameScreen : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Retrieve targetScore and isHardMode from Intent
-        targetScore = intent.getIntExtra("targetScore", 101)
-        isHardMode = intent.getBooleanExtra("isHardMode", true)
+        // Restore state if available, otherwise get from Intent
+        targetScore = savedInstanceState?.getInt("targetScore") ?: intent.getIntExtra("targetScore", 101)
+        isHardMode = savedInstanceState?.getBoolean("isHardMode") ?: intent.getBooleanExtra("isHardMode", true)
 
         setContent {
             DiceGameTheme {
@@ -87,9 +87,9 @@ class GameScreen : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isHardMode: Boolean = true) {
+fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isHardMode: Boolean = true,) {
     val gameInstance = remember { Game(targetScore, isHardMode) }
-    var gameState by remember { mutableStateOf(0) }
+    var gameState by rememberSaveable { mutableStateOf(0) }
 
     var playerScore by rememberSaveable { mutableStateOf(0) }
     var computerScore by rememberSaveable { mutableStateOf(0) }
@@ -115,7 +115,7 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
     var throwButtonEnabled by rememberSaveable { mutableStateOf(true) }
 
     var rerollsLeft by rememberSaveable { mutableStateOf(2) }
-    var selectedDice by remember { mutableStateOf(BooleanArray(5)) }
+    var selectedDice by rememberSaveable { mutableStateOf(BooleanArray(5)) }
     var isGameOver by rememberSaveable { mutableStateOf(false) }
 
 
@@ -157,13 +157,15 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
     BaseScreenLayout {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(1f)
                 .padding(
                     start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
-        ) {
+        )
+
+        {
             //this row is responsible for the score display
             Row(
                 modifier = Modifier
@@ -237,7 +239,16 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Text(
+                    text = "Player", style = TextStyle(
+                        fontFamily = happyMonkeyFont,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                    )
+                )
                 Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+
                     playerDicevalues.forEachIndexed { index, diceValue ->
                         Image(painter = painterResource(id = getDiceDrawable(diceValue)),
                             contentDescription = "Dice showing $diceValue",
@@ -253,21 +264,14 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
                                 }
                                 .border(
                                     BorderStroke(
-                                        2.dp, if (selectedDice[index]) Color.Green
+                                        3.dp, if (selectedDice[index]) Color.White
                                         else Color.Transparent
                                     ), shape = RoundedCornerShape(8.dp)
                                 ))
                     }
                 }
 
-                Text(
-                    text = "Player", style = TextStyle(
-                        fontFamily = happyMonkeyFont,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
-                )
+
             }
 
 

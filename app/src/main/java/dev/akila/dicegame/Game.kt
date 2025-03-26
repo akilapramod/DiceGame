@@ -8,7 +8,6 @@ class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
     private var playerScore = 0
     private var computerScore = 0
 
-    // Validate targetScore
     private val winningScore = if (targetScore >= 1) targetScore else 101
 
     //this variablea are used for the player rerolling
