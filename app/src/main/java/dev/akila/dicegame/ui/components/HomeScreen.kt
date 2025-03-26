@@ -257,6 +257,7 @@ fun PrimaryButton(
 ) {
     Button(
         modifier = modifier
+            .padding(8.dp)
             .border(
                 border = BorderStroke(6.dp, Color.Black),
                 shape = RoundedCornerShape(8.dp)

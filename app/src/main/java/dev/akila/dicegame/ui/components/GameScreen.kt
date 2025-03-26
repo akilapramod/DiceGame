@@ -279,33 +279,14 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
             Row(
                 modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
+                    PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
                     text = "Score",
                     onClick = {
-                        if (!computerTookTurn) {
-                            // Player ends turn, computer's turn starts
-                            gameInstance.computerTurn()
-                            updateUI()
-                            Log.d("Game Activity", "Computer's turn is over.")
-                        } else {
-                            // Computer has taken turn, end the round
-                            if (gameInstance.calculateScore()) {
-                                hasThrown = false
-                                scoreButtonEnabled = false
-                                throwButtonEnabled = true
-                                
-                                if (gameInstance.isGameOver()) {
-                                    // Show game over state
-                                    scoreButtonEnabled = false
-                                    throwButtonEnabled = false
-                                    isGameOver = true
-                                } else {
-                                    gameInstance.resetForNewRound()
-                                }
-                                updateUI()
-                                Log.d("Game Activity", "Round completed, scores calculated.")
-                            }
-                        }
+                        gameInstance.calculateScore()
+                        gameInstance.computerTurn()
+                        updateUI()
+                        hasThrown = false
+                        throwButtonEnabled = true
                     },
                     enabled = hasThrown)
 

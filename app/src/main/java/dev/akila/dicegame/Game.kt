@@ -10,7 +10,7 @@ class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
 
     private val winningScore = if (targetScore >= 1) targetScore else 101
 
-    //this variablea are used for the player rerolling
+    //this variable are used for the player rerolling
     private var rerollsRemaining = 2
     private var selectedDice = BooleanArray(5) { false }
 
