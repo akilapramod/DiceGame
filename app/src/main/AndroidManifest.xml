@@ -13,11 +13,6 @@
         android:theme="@style/Theme.DiceGame"
         tools:targetApi="31">
         <activity
-            android:name=".ui.components.AboutScreen"
-            android:exported="false"
-            android:label="@string/title_activity_about_screen"
-            android:theme="@style/Theme.DiceGame" />
-        <activity
             android:name=".ui.components.HomeActivity"
             android:exported="false"
             android:label="@string/title_activity_home"

@@ -3,12 +3,14 @@ package dev.akila.dicegame
 import android.util.Log
 import kotlin.random.Random
 
-class Game {
+class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
 
     private var playerScore = 0
     private var computerScore = 0
 
-    //this variablea are used for the player rerolling
+    private val winningScore = if (targetScore >= 1) targetScore else 101
+
+    //this variable are used for the player rerolling
     private var rerollsRemaining = 2
     private var selectedDice = BooleanArray(5) { false }
 
@@ -25,16 +27,19 @@ class Game {
     private var playerWins = 0
     private var computerWins = 0
 
-    private val WINNING_SCORE = 50
+    //private val winningScore = 50
     private var gameOver = false
-    private var winner = "" // "player", "computer", or empty for ongoing game
+    private var winner = ""
 
-    // Roll dice for both player and computer
-    fun rollDice() {
+    // Roll dice for player only
+    fun rollPlayerDice() {
         playerDice = generateDiceRoll()
-        computerDice = generateDiceRoll()
-
         Log.d("Game", "Player dice: ${playerDice.joinToString(", ")}")
+    }
+
+    // Roll dice for computer only
+    fun rollComputerDice() {
+        computerDice = generateDiceRoll()
         Log.d("Game", "Computer dice: ${computerDice.joinToString(", ")}")
     }
 
@@ -47,7 +52,6 @@ class Game {
         selectedDice[index] = !selectedDice[index]
         Log.d("Game", "Die $index selected: ${selectedDice[index]}")
     }
-
 
     //this function is used to reroll the unselected dice.
     fun rerollUnselectedDice(): Boolean {
@@ -70,7 +74,6 @@ class Game {
         return false
     }
 
-
     //this function is used to roll the dice except the dice that are selected.
     // Create an Integer array and Generate 5 random dice values  then
     // store them in the Array
@@ -90,54 +93,61 @@ class Game {
         return dice.sum()
     }
 
-
     /*
     Calculate the score for the player and computer by adding the
     previous Rice roll rounds.
      */
-    fun calculateScore() {
+    fun calculateScore(): Boolean {
+        if (gameOver) return false
+        
+        // Calculate and store round scores
         playerRoundScore = calculateRoundScore(playerDice)
         computerRoundScore = calculateRoundScore(computerDice)
 
         Log.d("Game", "Round scores - Player: $playerRoundScore, Computer: $computerRoundScore")
 
-
         // Update total scores
         playerScore += playerRoundScore
         computerScore += computerRoundScore
 
-        //check if the game is over
-        if (playerScore >= WINNING_SCORE) {
+        // Reset for next round
+        computerTookTurn = false
+        resetForNewRound()
+
+        // Check if game is over
+        if (playerScore >= winningScore) {
             gameOver = true
             winner = "player"
             playerWins++
             Log.d("Game", "Game over! Player wins with score: $playerScore")
-        } else if (computerScore >= WINNING_SCORE) {
+        } else if (computerScore >= winningScore) {
             gameOver = true
             winner = "computer"
             computerWins++
             Log.d("Game", "Game over! Computer wins with score: $computerScore")
         }
 
-        // Reset for next round
-        computerTookTurn = false
+        return true
+    }
+    
+    fun computerTurn() {
+        if (isHardMode) {
+            computerTurnHard()
+        } else {
+            computerTurnEasy()
+        }
     }
 
-    fun computerTurn() {
+    private fun computerTurnHard() {
         rerollsRemaining = 2
-
-        // Computer rolls dice
-        computerDice = generateDiceRoll()
+        rollComputerDice()
+        Log.d("Game Activity", "Player ended turn, computer's turn started.")
         Log.d("Game", "Initial computer dice: ${computerDice.joinToString(", ")}")
-
 
         //calculate computer score after first roll
         computerRoundScore = calculateRoundScore(computerDice)
 
         val rerollThreshold = 3 // Consider dice with value 3 or lower as low
-
-        val computerSelectedDice = BooleanArray(5) { computerDice[it] > rerollThreshold }
-
 
         // First reroll
         if (rerollsRemaining > 0) {
@@ -148,7 +158,6 @@ class Game {
             }
             rerollsRemaining--
             Log.d("Game", "After first reroll - Computer dice: ${computerDice.joinToString(", ")}")
-
         }
 
         // Second reroll if needed
@@ -166,15 +175,46 @@ class Game {
         computerRoundScore = calculateRoundScore(computerDice)
         Log.d("Game", "Final computer round score: $computerRoundScore")
 
-
         computerTookTurn = true
-        //computer turn is over.
+    }
 
+    private fun computerTurnEasy() {
+        rerollsRemaining = 2
+        rollComputerDice()
+
+        repeat(2) { // Max 2 rerolls
+            if (rerollsRemaining > 0 && Random.nextBoolean()) { // 50% chance to reroll
+                val keepCount = Random.nextInt(1, 4) // Keep 1-3 dice
+                val indicesToKeep = computerDice.indices.shuffled().take(keepCount)
+
+                computerDice.forEachIndexed { i, _ ->
+                    if (i !in indicesToKeep) {
+                        computerDice[i] = Random.nextInt(1, 7)
+                    }
+                }
+                rerollsRemaining--
+                Log.d("Game", "Easy mode reroll ${it+1}: Kept indices $indicesToKeep, Dice: ${computerDice.contentToString()}")
+            }
+        }
+
+        computerRoundScore = calculateRoundScore(computerDice)
+        computerTookTurn = true
+    }
+
+    fun resetGame() {
+        playerScore = 0
+        computerScore = 0
+        gameOver = false
+        winner = ""
+        resetForNewRound()
+        Log.d("Game", "Full game reset")
     }
 
     fun resetForNewRound() {
         rerollsRemaining = 2
         selectedDice = BooleanArray(5) { false }
+        playerDice = IntArray(5) { 0 }
+        computerDice = IntArray(5) { 0 }
         Log.d("Game", "Reset for new round. Rerolls reset to: $rerollsRemaining")
     }
 
@@ -190,8 +230,6 @@ class Game {
     fun getPlayerRoundScore(): Int = playerRoundScore
     fun getComputerRoundScore(): Int = computerRoundScore
     fun getComputerTookTurn(): Boolean = computerTookTurn
+    fun isGameOver(): Boolean = gameOver
+    fun getWinner(): String = winner
 }
-
-
-
-

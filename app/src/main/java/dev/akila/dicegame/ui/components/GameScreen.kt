@@ -19,10 +19,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,12 +50,20 @@ import dev.akila.dicegame.R
 import dev.akila.dicegame.ui.theme.DiceGameTheme
 import dev.akila.dicegame.ui.theme.happyMonkeyFont
 import dev.akila.dicegame.ui.theme.AppColors.primaryColor
+import android.content.Intent
 
 
 class GameScreen : ComponentActivity() {
+    private var targetScore: Int = 101
+    private var isHardMode: Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Restore state if available, otherwise get from Intent
+        targetScore = savedInstanceState?.getInt("targetScore") ?: intent.getIntExtra("targetScore", 101)
+        isHardMode = savedInstanceState?.getBoolean("isHardMode") ?: intent.getBooleanExtra("isHardMode", true)
 
         setContent {
             DiceGameTheme {
@@ -64,6 +76,8 @@ class GameScreen : ComponentActivity() {
                     )
                     GameScreenContent(
                         modifier = Modifier.padding(innerPadding),
+                        targetScore = targetScore,
+                        isHardMode = isHardMode
                     )
                 }
             }
@@ -73,12 +87,9 @@ class GameScreen : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun GameScreenContent(modifier: Modifier = Modifier) {/*
-    this creates a object of the game class and
-     */
-
-    val gameInstance = remember { Game() }
-    var gameState by remember { mutableStateOf(0) }
+fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isHardMode: Boolean = true,) {
+    val gameInstance = remember { Game(targetScore, isHardMode) }
+    var gameState by rememberSaveable { mutableStateOf(0) }
 
     var playerScore by rememberSaveable { mutableStateOf(0) }
     var computerScore by rememberSaveable { mutableStateOf(0) }
@@ -88,6 +99,7 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
 
     var playerWins by rememberSaveable { mutableStateOf(0) }
     var computerWins by rememberSaveable { mutableStateOf(0) }
+
 
     var playerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
     var computerDicevalues by rememberSaveable { mutableStateOf(IntArray(5)) }
@@ -103,17 +115,19 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
     var throwButtonEnabled by rememberSaveable { mutableStateOf(true) }
 
     var rerollsLeft by rememberSaveable { mutableStateOf(2) }
-    var selectedDice by remember { mutableStateOf(BooleanArray(5)) }
+    var selectedDice by rememberSaveable { mutableStateOf(BooleanArray(5)) }
+    var isGameOver by rememberSaveable { mutableStateOf(false) }
 
 
     val updateUI = {
         gameState++
-        playerScore = gameInstance.getPlayerScore() 
+        playerScore = gameInstance.getPlayerScore()
         computerScore = gameInstance.getComputerScore()
         playerRoundScore = gameInstance.getPlayerRoundScore()
         computerRoundScore = gameInstance.getComputerRoundScore()
         playerWins = gameInstance.getPlayerWins()
         computerWins = gameInstance.getComputerWins()
+        isGameOver = gameInstance.isGameOver()
 
         playerDicevalues = gameInstance.getPlayerDiceResult()
         computerDicevalues = gameInstance.getComputerDiceResult()
@@ -143,52 +157,47 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
     BaseScreenLayout {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(1f)
+                .padding(
+                    start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceAround
-        ) {
+            verticalArrangement = Arrangement.SpaceEvenly
+        )
+
+        {
             //this row is responsible for the score display
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                ContentBox(modifier = Modifier.padding(8.dp), "H: $playerWins/ C:$computerWins")
-                Box(
-                    modifier = Modifier
-                        .background(primaryColor)
-                        .padding(8.dp)
-                )
+                ContentBox(modifier, "H: $playerWins/ C:$computerWins")
 
-                ContentBox(modifier = Modifier.padding(8.dp), "C : $computerScore H:$playerScore ")
-                Box(
-                    modifier = Modifier
-                        .background(primaryColor)
-                        .padding(8.dp)
-                )
+                ContentBox(modifier, "C : $computerScore H:$playerScore ")
             }
 
-            //this row is responsible for total score
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-
-                ContentBox(modifier, "Total Score : ")
-
-
+                ContentBox(modifier, "Target Score : $targetScore")
+                ContentBox(modifier, "Mode: ${if (isHardMode) "Hard" else "Easy"}")
             }
 
-            //this box is responsible to show the dices and Computer Player
+
+            //this box is responsible to show the dices and Computer
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .wrapContentWidth()
+                    .weight(1f)
+                    .wrapContentHeight()
                     .background(primaryColor)
                     .border(
-                        border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp)
+                        border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp)
                     ),
-                //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -199,8 +208,8 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                         color = Color.Black,
                     )
                 )
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
-
+                //dice row
+                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                     //map each value of the dice array to its relevant image.
                     computerDicevalues.forEach { diceValue ->
                         Image(
@@ -219,15 +228,27 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
             //this box is responsible to show the dices and name for human player
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .wrapContentWidth()
+                    .weight(1f)
+                    .wrapContentHeight()
                     .background(primaryColor)
                     .border(
-                        border = BorderStroke(4.dp, Color.Black), shape = RoundedCornerShape(8.dp)
+                        border = BorderStroke(4.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp)
                     ), // Or other modifiers
                 //verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    text = "Player", style = TextStyle(
+                        fontFamily = happyMonkeyFont,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                    )
+                )
+                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+
                     playerDicevalues.forEachIndexed { index, diceValue ->
                         Image(painter = painterResource(id = getDiceDrawable(diceValue)),
                             contentDescription = "Dice showing $diceValue",
@@ -238,28 +259,19 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                                     // Always allow selecting/deselecting dice after the first throw
                                     if (hasThrown) {
                                         gameInstance.selectDie(index)
-
-
                                         updateUI()
                                     }
                                 }
                                 .border(
                                     BorderStroke(
-                                        2.dp, if (selectedDice[index]) Color.Green
+                                        3.dp, if (selectedDice[index]) Color.White
                                         else Color.Transparent
                                     ), shape = RoundedCornerShape(8.dp)
                                 ))
                     }
                 }
 
-                Text(
-                    text = "Player", style = TextStyle(
-                        fontFamily = happyMonkeyFont,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
-                )
+
             }
 
 
@@ -270,27 +282,13 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
                     text = "Score",
                     onClick = {
-                        if (!computerTookTurn){
-
-                            // Player ends turn, computer's turn starts
-                            gameInstance.computerTurn()
-                            updateUI()
-                            Log.d("Game Activity", "Player ended turn, computer's turn started.")}
-                        else {
-                            //Computer has taken turn, end the round
-                            gameInstance.calculateScore()
-                            hasThrown = false // Reset for next round
-                            scoreButtonEnabled = false
-                            throwButtonEnabled = true
-                            gameInstance.resetForNewRound()
-                            updateUI()
-                            Log.d("Game Activity", "Round completed, scores calculated.")
-
-                            if (playerScore >= 50 || computerScore >= 50) {
-                                // Show game over dialog or update UI accordingly
-                                Log.d("Game Activity", "Game over! Winner: ${if (playerScore >= 50) "Player" else "Computer"}")
-                            }
-                        }
+                        // Take computer's turn first
+                        gameInstance.computerTurn()
+                        updateUI() 
+                        gameInstance.calculateScore()
+                        updateUI()
+                        hasThrown = false
+                        throwButtonEnabled = true
                     },
                     enabled = hasThrown)
 
@@ -298,10 +296,12 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 PrimaryButton(
                     modifier = Modifier.padding(bottom = 16.dp),
                     text = if (!hasThrown) "Throw" else "Reroll ($rerollsLeft left)",
-                    onClick = {
+                        onClick = {
                         if (!hasThrown) {
                             // First throw of the round
-                            gameInstance.rollDice()
+                            gameInstance.rollPlayerDice()
+                            // Roll computer dice initially just for display
+                            gameInstance.rollComputerDice()
                             hasThrown = true
                             updateUI()
                             Log.d("Game Activity", "Throw button pressed.")
@@ -323,6 +323,42 @@ fun GameScreenContent(modifier: Modifier = Modifier) {/*
                 )
             }
         }
+
+        if (isGameOver) {
+            AlertDialog(
+                onDismissRequest = {
+                    // Reset game state when dialog is dismissed
+                    isGameOver = false
+                    gameInstance.resetGame()
+                    updateUI()
+
+                },
+                title = { Text(text = "Game Over") },
+                text = {
+                    Text(
+                        text = if (playerWins > computerWins)
+                            "Congrats you win!"
+                        else "You lose, better luck next time",
+                        style = TextStyle(
+                            if (playerWins > computerWins)
+                                Color.Green
+                            else Color.Red,
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            // Reset game state when "OK" is clicked
+                            isGameOver = false
+                            gameInstance.resetGame()
+                            updateUI()
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
     }
 }
-
