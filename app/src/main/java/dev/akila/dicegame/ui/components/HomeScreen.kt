@@ -224,7 +224,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         },
                         text = {
                             Text(
-                                text = "UoW Student ID: w2083738, Name: Akila Pramod\n" +
+                                text = "UoW Student ID: w2083133, Name: Akila Pramod\n" +
                                         "I confirm that I understand what plagiarism is and have read and understood " +
                                         "the section on Assessment Offences in the Essential Information for Students. " +
                                         "The work that I have submitted is entirely my own. Any work from other authors " +

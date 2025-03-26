@@ -279,11 +279,13 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
             Row(
                 modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                    PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
+                PrimaryButton(modifier = Modifier.padding(bottom = 16.dp),
                     text = "Score",
                     onClick = {
-                        gameInstance.calculateScore()
+                        // Take computer's turn first
                         gameInstance.computerTurn()
+                        updateUI() 
+                        gameInstance.calculateScore()
                         updateUI()
                         hasThrown = false
                         throwButtonEnabled = true
@@ -298,6 +300,8 @@ fun GameScreenContent(modifier: Modifier = Modifier, targetScore: Int = 101, isH
                         if (!hasThrown) {
                             // First throw of the round
                             gameInstance.rollPlayerDice()
+                            // Roll computer dice initially just for display
+                            gameInstance.rollComputerDice()
                             hasThrown = true
                             updateUI()
                             Log.d("Game Activity", "Throw button pressed.")

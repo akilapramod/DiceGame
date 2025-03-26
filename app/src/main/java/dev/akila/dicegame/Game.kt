@@ -100,6 +100,7 @@ class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
     fun calculateScore(): Boolean {
         if (gameOver) return false
         
+        // Calculate and store round scores
         playerRoundScore = calculateRoundScore(playerDice)
         computerRoundScore = calculateRoundScore(computerDice)
 
@@ -109,7 +110,11 @@ class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
         playerScore += playerRoundScore
         computerScore += computerRoundScore
 
-        //check if the game is over
+        // Reset for next round
+        computerTookTurn = false
+        resetForNewRound()
+
+        // Check if game is over
         if (playerScore >= winningScore) {
             gameOver = true
             winner = "player"
@@ -122,8 +127,6 @@ class Game(targetScore: Int = 101, private val isHardMode: Boolean = true) {
             Log.d("Game", "Game over! Computer wins with score: $computerScore")
         }
 
-        // Reset for next round
-        computerTookTurn = false
         return true
     }
     
